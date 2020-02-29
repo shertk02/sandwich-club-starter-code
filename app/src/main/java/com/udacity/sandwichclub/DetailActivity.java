@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
@@ -14,6 +15,13 @@ public class DetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
+
+    private TextView mAlsoKnownAs;
+    private TextView mPlaceOfOrigin;
+    private TextView mDescription;
+    private TextView mIngredients;
+    private Sandwich currentSandwich;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +35,11 @@ public class DetailActivity extends AppCompatActivity {
             closeOnError();
         }
 
+        mAlsoKnownAs = findViewById(R.id.also_known_tv);
+        mPlaceOfOrigin = findViewById(R.id.origin_tv);
+        mDescription = findViewById(R.id.description_tv);
+        mIngredients = findViewById(R.id.ingredients_tv);
+
         int position = intent.getIntExtra(EXTRA_POSITION, DEFAULT_POSITION);
         if (position == DEFAULT_POSITION) {
             // EXTRA_POSITION not found in intent
@@ -36,8 +49,8 @@ public class DetailActivity extends AppCompatActivity {
 
         String[] sandwiches = getResources().getStringArray(R.array.sandwich_details);
         String json = sandwiches[position];
-        Sandwich sandwich = JsonUtils.parseSandwichJson(json);
-        if (sandwich == null) {
+        currentSandwich = JsonUtils.parseSandwichJson(json);
+        if (currentSandwich == null) {
             // Sandwich data unavailable
             closeOnError();
             return;
@@ -45,10 +58,10 @@ public class DetailActivity extends AppCompatActivity {
 
         populateUI();
         Picasso.with(this)
-                .load(sandwich.getImage())
+                .load(currentSandwich.getImage())
                 .into(ingredientsIv);
 
-        setTitle(sandwich.getMainName());
+        setTitle(currentSandwich.getMainName());
     }
 
     private void closeOnError() {
@@ -57,6 +70,13 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void populateUI() {
+
+        String aka = currentSandwich.getAlsoKnownAs().toString();
+        String ingreds = currentSandwich.getIngredients().toString();
+        mAlsoKnownAs.setText(aka.substring(1,aka.length()-1));
+        mPlaceOfOrigin.setText(currentSandwich.getPlaceOfOrigin());
+        mDescription.setText(currentSandwich.getDescription());
+        mIngredients.setText(ingreds.substring(1,ingreds.length()-1));
 
     }
 }
